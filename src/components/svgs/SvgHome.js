@@ -1,6 +1,8 @@
 import c from "./SvgHome.module.css";
 import { SvgLoader, SvgProxy } from "react-svgmt";
 
+
+
 const SvgHome = (p) => {
   return (
     <div className={c.container}>
