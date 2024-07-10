@@ -11,6 +11,4 @@ const SvgHome = (p) => {
     </div>
   );
 };
-
-
 export default SvgHome;
