@@ -1,10 +1,12 @@
 import { Suspense } from 'react';
 import './App.css';
 import { Navigate, Route, Routes } from 'react-router-dom';
+import NavBar from "./components/UI/NavBar";
 
 function App() {
   return (
     <div className="App">
+    <NavBar />
       <Suspense>
         <Routes>
           <Route index path="/" element={<Navigate replace to="/home" />} />
