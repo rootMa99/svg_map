@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 import './App.css';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import NavBar from "./components/UI/NavBar";
+import SvgHome from './components/svgs/SvgHome';
 
 function App() {
   return (
@@ -10,7 +11,7 @@ function App() {
       <Suspense>
         <Routes>
           <Route index path="/" element={<Navigate replace to="/home" />} />
-          <Route exact path="/home" element={<h1>homes</h1>} />
+          <Route exact path="/home" element={<SvgHome />} />
           <Route path="*" element={<Navigate replace to="/home" />} />
         </Routes>
       </Suspense>
