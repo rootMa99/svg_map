@@ -1,31 +1,38 @@
 import c from "./SvgHome.module.css";
 import React, { useRef, useEffect } from 'react';
-import * as d3 from 'd3';
+import Snap from 'snapsvg-cjs';
 // import sv from "../../assets/world.svg"
 const SvgHome = (p) => {
-    const svgContainerRef = useRef(null);
+    const svgRef = useRef(null);
 
     useEffect(() => {
-      d3.xml("../../assets/aptiv-logo.svg").then(data => {
-        const importedNode = document.importNode(data.documentElement, true);
-        const svg = d3.select(svgContainerRef.current).node().appendChild(importedNode);
+      const s = Snap(svgRef.current);
+      s.attr({ viewBox: "0 0 600 400", width: "100%", height: "100%" });
   
-        const zoom = d3.zoom()
-          .scaleExtent([0.5, 5])
-          .on('zoom', (event) => {
-            d3.select(svg).select('g').attr('transform', event.transform);
-          });
+      const rect = s.rect(50, 50, 100, 100).attr({ fill: 'lightblue', stroke: 'black', strokeWidth: 2 });
   
-        d3.select(svg).call(zoom);
+      let zoomLevel = 1;
   
-        // Ensure the SVG file has a <g> element to apply the zoom transform
-        if (!d3.select(svg).select('g').node()) {
-          const g = d3.select(svg).append('g');
-          g.selectAll('*').nodes().forEach(node => g.node().appendChild(node));
-        }
-      });
+      const zoomIn = () => {
+        zoomLevel *= 1.2;
+        s.attr({ viewBox: `0 0 ${600 / zoomLevel} ${400 / zoomLevel}` });
+      };
+  
+      const zoomOut = () => {
+        zoomLevel /= 1.2;
+        s.attr({ viewBox: `0 0 ${600 / zoomLevel} ${400 / zoomLevel}` });
+      };
+  
+      document.getElementById('zoomIn').addEventListener('click', zoomIn);
+      document.getElementById('zoomOut').addEventListener('click', zoomOut);
     }, []);
   
-    return <div ref={svgContainerRef} className="svg-container"></div>;
+    return (
+      <div>
+        <svg ref={svgRef}></svg>
+        <button id="zoomIn">Zoom In</button>
+        <button id="zoomOut">Zoom Out</button>
+      </div>
+    );
 };
 export default SvgHome;
