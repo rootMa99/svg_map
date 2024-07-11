@@ -13,6 +13,7 @@ const SvgHome = (p) => {
         let zoomLevel = 1;
   
         const zoomIn = () => {
+            console.log("zoom")
           zoomLevel *= 1.2;
           s.attr({ viewBox: `0 0 ${600 / zoomLevel} ${400 / zoomLevel}` });
         };
