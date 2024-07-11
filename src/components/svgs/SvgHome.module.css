@@ -6,9 +6,9 @@
   
   .svgContainer {
     width: 100%;
-    height: 90%; /* or whatever height you prefer */
+    height: 90%;
     border: 1px solid black;
-    overflow: hidden; /* Ensure overflow is hidden */
+    overflow: hidden; 
     background-color: aliceblue;
   }
   
