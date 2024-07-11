@@ -18,10 +18,6 @@ const SvgHome = () => {
       if (svgElement) {
         s.append(svgElement);
 
-        const updateViewBox = () => {
-          setViewBox(`${viewBoxState.x} ${viewBoxState.y} ${viewBoxState.width} ${viewBoxState.height}`);
-        };
-
         const handleWheel = (event) => {
           event.preventDefault();
 
@@ -57,7 +53,7 @@ const SvgHome = () => {
           if (isPanning) {
             const dx = (startX - event.clientX) * (viewBoxState.width / svgRef.current.clientWidth);
             const dy = (startY - event.clientY) * (viewBoxState.height / svgRef.current.clientHeight);
-            
+
             setStartX(event.clientX);
             setStartY(event.clientY);
 
