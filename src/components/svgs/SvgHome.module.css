@@ -9,7 +9,6 @@
     height: 600px; /* or whatever height you prefer */
     border: 1px solid black;
     overflow: hidden; /* Ensure overflow is hidden */
-    background-color: aliceblue;
   }
   
   svg {
