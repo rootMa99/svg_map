@@ -13,6 +13,7 @@
     "react-router-dom": "^6.24.1",
     "react-scripts": "5.0.1",
     "react-svgmt": "^2.0.2",
+    "snapsvg-cjs": "^0.0.6",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
