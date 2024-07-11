@@ -7,7 +7,7 @@ const SvgHome = (p) => {
   const [viewBox, setViewBox] = useState("0 0 600 400");
 
   useEffect(() => {
-    Snap.load("/assets/nocards.svg", (loadedFragment) => {
+    Snap.load("/assets/M4-LAYOUT-EVOLUTION-JULY-2024-Model.svg", (loadedFragment) => {
       const s = Snap(svgRef.current);
       s.append(loadedFragment);
 
