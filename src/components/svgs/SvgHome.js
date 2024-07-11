@@ -5,6 +5,10 @@ import c from "./SvgHome.module.css";
 const SvgHome = () => {
   const svgRef = useRef(null);
   const [viewBox, setViewBox] = useState("0 0 600 400");
+  const [isPanning, setIsPanning] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [startY, setStartY] = useState(0);
+  const [viewBoxState, setViewBoxState] = useState({ x: 0, y: 0, width: 600, height: 400 });
 
   useEffect(() => {
     Snap.load("/assets/M4-LAYOUT-EVOLUTION-JULY-2024-Model.svg", (loadedFragment) => {
@@ -14,10 +18,8 @@ const SvgHome = () => {
       if (svgElement) {
         s.append(svgElement);
 
-        let currentViewBox = { x: 0, y: 0, width: 600, height: 400 };
-
         const updateViewBox = () => {
-          setViewBox(`${currentViewBox.x} ${currentViewBox.y} ${currentViewBox.width} ${currentViewBox.height}`);
+          setViewBox(`${viewBoxState.x} ${viewBoxState.y} ${viewBoxState.width} ${viewBoxState.height}`);
         };
 
         const handleWheel = (event) => {
@@ -30,32 +32,67 @@ const SvgHome = () => {
           const zoomFactor = 1.2;
           const scale = event.deltaY > 0 ? 1 / zoomFactor : zoomFactor;
 
-          const newWidth = currentViewBox.width * scale;
-          const newHeight = currentViewBox.height * scale;
+          const newWidth = viewBoxState.width * scale;
+          const newHeight = viewBoxState.height * scale;
 
-          const dx = ((mouseX / rect.width) * (currentViewBox.width - newWidth));
-          const dy = ((mouseY / rect.height) * (currentViewBox.height - newHeight));
+          const dx = ((mouseX / rect.width) * (viewBoxState.width - newWidth));
+          const dy = ((mouseY / rect.height) * (viewBoxState.height - newHeight));
 
-          currentViewBox = {
-            x: currentViewBox.x + dx,
-            y: currentViewBox.y + dy,
+          setViewBoxState(prevState => ({
+            ...prevState,
+            x: prevState.x + dx,
+            y: prevState.y + dy,
             width: newWidth,
             height: newHeight
-          };
+          }));
+        };
 
-          updateViewBox();
+        const handleMouseDown = (event) => {
+          setIsPanning(true);
+          setStartX(event.clientX);
+          setStartY(event.clientY);
+        };
+
+        const handleMouseMove = (event) => {
+          if (isPanning) {
+            const dx = (startX - event.clientX) * (viewBoxState.width / svgRef.current.clientWidth);
+            const dy = (startY - event.clientY) * (viewBoxState.height / svgRef.current.clientHeight);
+            
+            setStartX(event.clientX);
+            setStartY(event.clientY);
+
+            setViewBoxState(prevState => ({
+              ...prevState,
+              x: prevState.x + dx,
+              y: prevState.y + dy
+            }));
+          }
+        };
+
+        const handleMouseUp = () => {
+          setIsPanning(false);
         };
 
         svgRef.current.addEventListener('wheel', handleWheel);
+        svgRef.current.addEventListener('mousedown', handleMouseDown);
+        window.addEventListener('mousemove', handleMouseMove);
+        window.addEventListener('mouseup', handleMouseUp);
 
         return () => {
           svgRef.current.removeEventListener('wheel', handleWheel);
+          svgRef.current.removeEventListener('mousedown', handleMouseDown);
+          window.removeEventListener('mousemove', handleMouseMove);
+          window.removeEventListener('mouseup', handleMouseUp);
         };
       } else {
         console.error("SVG not loaded or appended correctly");
       }
     });
-  }, []);
+  }, [viewBoxState, isPanning, startX, startY]);
+
+  useEffect(() => {
+    setViewBox(`${viewBoxState.x} ${viewBoxState.y} ${viewBoxState.width} ${viewBoxState.height}`);
+  }, [viewBoxState]);
 
   return (
     <div className={c.container}>
