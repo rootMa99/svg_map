@@ -1,0 +1,10 @@
+.container {
+    width: 100%;
+    height: 600px; /* or whatever height you prefer */
+    border: 1px solid black;
+    overflow: hidden; /* Ensure overflow is hidden */
+  }
+  svg {
+    width: 100%;
+    height: 100%;
+  }

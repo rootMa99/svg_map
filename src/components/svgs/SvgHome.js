@@ -6,30 +6,30 @@ const SvgHome = (p) => {
     const svgRef = useRef(null);
 
     useEffect(() => {
-      const s = Snap(svgRef.current);
-      s.attr({ viewBox: "0 0 600 400", width: "100%", height: "100%" });
+      Snap.load("/assets/M4-LAYOUT-EVOLUTION-JULY-2024-Model.svg", (loadedFragment) => {
+        const s = Snap(svgRef.current);
+        s.append(loadedFragment);
   
-      const rect = s.rect(50, 50, 100, 100).attr({ fill: 'lightblue', stroke: 'black', strokeWidth: 2 });
+        let zoomLevel = 1;
   
-      let zoomLevel = 1;
+        const zoomIn = () => {
+          zoomLevel *= 1.2;
+          s.attr({ viewBox: `0 0 ${600 / zoomLevel} ${400 / zoomLevel}` });
+        };
   
-      const zoomIn = () => {
-        zoomLevel *= 1.2;
-        s.attr({ viewBox: `0 0 ${600 / zoomLevel} ${400 / zoomLevel}` });
-      };
+        const zoomOut = () => {
+          zoomLevel /= 1.2;
+          s.attr({ viewBox: `0 0 ${600 / zoomLevel} ${400 / zoomLevel}` });
+        };
   
-      const zoomOut = () => {
-        zoomLevel /= 1.2;
-        s.attr({ viewBox: `0 0 ${600 / zoomLevel} ${400 / zoomLevel}` });
-      };
-  
-      document.getElementById('zoomIn').addEventListener('click', zoomIn);
-      document.getElementById('zoomOut').addEventListener('click', zoomOut);
+        document.getElementById('zoomIn').addEventListener('click', zoomIn);
+        document.getElementById('zoomOut').addEventListener('click', zoomOut);
+      });
     }, []);
   
     return (
-      <div>
-        <svg ref={svgRef}></svg>
+      <div className={c.container}>
+        <div ref={svgRef} className={c["svg-container"]}></div>
         <button id="zoomIn">Zoom In</button>
         <button id="zoomOut">Zoom Out</button>
       </div>
