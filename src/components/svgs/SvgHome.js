@@ -254,19 +254,13 @@
 
 
 // SvgHome.js
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { ReactSVGPanZoom } from 'react-svg-pan-zoom';
+import { ReactComponent as MySvg } from '../../assets/M4-LAYOUT-EVOLUTION-JULY-2024-Model.svg';
 import c from './SvgHome.module.css';
 
 const SvgHome = () => {
-  const [svgContent, setSvgContent] = useState('');
-
-  useEffect(() => {
-    fetch(`${process.env.PUBLIC_URL}/assets/M4-LAYOUT-EVOLUTION-JULY-2024-Model.svg`)
-      .then(response => response.text())
-      .then(data => setSvgContent(data))
-      .catch(error => console.error('Error fetching SVG:', error));
-  }, []);
+  const [zoomEnabled, setZoomEnabled] = useState(true);
 
   return (
     <div className={c.container}>
@@ -276,18 +270,18 @@ const SvgHome = () => {
         background="white"
         toolbarPosition="none"
         miniaturePosition="none"
+        detectAutoPan={false}
+        onChange={(event) => {
+          // You can handle zoom and pan changes here
+        }}
       >
-        <svg
-          width={1000}
-          height={1000}
-          dangerouslySetInnerHTML={{ __html: svgContent }}
-          xmlns="http://www.w3.org/2000/svg"
-        />
+        <MySvg style={{ width: '100%', height: '100%' }} />
       </ReactSVGPanZoom>
     </div>
   );
 };
 
 export default SvgHome;
+
 
 
