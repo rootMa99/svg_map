@@ -136,6 +136,7 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import Snap from 'snapsvg-cjs';
 import c from "./SvgHome.module.css";
+// eslint-disable-next-line import/no-webpack-loader-syntax
 import SvgWorker from 'worker-loader!./svgWorker.js'; // Adjust the path as necessary
 
 const SvgHome = () => {
