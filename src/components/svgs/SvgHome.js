@@ -255,33 +255,22 @@
 
 
 
+// SvgHome.js
+import React, { useEffect, useState } from 'react';
 
+const SvgHome = () => {
+  const [svgContent, setSvgContent] = useState(null);
 
-// ZoomableGraph.js
-import React, { useRef, useState } from 'react';
-import { ReactSVGPanZoom } from 'react-svg-pan-zoom';
-import { ReactComponent as Graph } from '../../assets/M4-LAYOUT-EVOLUTION-JULY-2024-Model.svg'; // Adjust the path to your SVG file
-
-const ZoomableGraph = () => {
-  const Viewer = useRef(null);
-  const [tool, setTool] = useState('auto');
+  useEffect(() => {
+    fetch(`${process.env.PUBLIC_URL}/assets/M4-LAYOUT-EVOLUTION-JULY-2024-Model.svg`)
+      .then(response => response.text())
+      .then(data => setSvgContent(data))
+      .catch(error => console.error('Error fetching SVG:', error));
+  }, []);
 
   return (
-    <div style={{ width: '500px', height: '500px', border: '1px solid #ccc' }}>
-      <ReactSVGPanZoom
-        width={500} height={500}
-        ref={Viewer}
-        tool={tool}
-        onChangeTool={setTool}
-        detectAutoPan={false}
-        onClick={() => Viewer.current.fitToViewer()}
-      >
-        <svg width={1000} height={1000}>
-          <Graph />
-        </svg>
-      </ReactSVGPanZoom>
-    </div>
+    <div className={c.container} dangerouslySetInnerHTML={{ __html: svgContent }} />
   );
 };
 
-export default ZoomableGraph;
+export default SvgHome;
