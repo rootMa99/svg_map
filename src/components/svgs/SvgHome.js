@@ -1,6 +1,6 @@
 // import React, { useRef, useEffect, useState, useCallback } from "react";
 // import Snap from "snapsvg-cjs";
-// import c from "./SvgHome.module.css";
+ import c from "./SvgHome.module.css";
 
 // const SvgHome = () => {
 //   const svgRef = useRef(null);
@@ -252,3 +252,36 @@
 // };
 
 // export default SvgHome;
+
+
+
+
+
+// ZoomableGraph.js
+import React, { useRef, useState } from 'react';
+import { ReactSVGPanZoom } from 'react-svg-pan-zoom';
+import { ReactComponent as Graph } from '../../assets/M4-LAYOUT-EVOLUTION-JULY-2024-Model.svg'; // Adjust the path to your SVG file
+
+const ZoomableGraph = () => {
+  const Viewer = useRef(null);
+  const [tool, setTool] = useState('auto');
+
+  return (
+    <div style={{ width: '500px', height: '500px', border: '1px solid #ccc' }}>
+      <ReactSVGPanZoom
+        width={500} height={500}
+        ref={Viewer}
+        tool={tool}
+        onChangeTool={setTool}
+        detectAutoPan={false}
+        onClick={() => Viewer.current.fitToViewer()}
+      >
+        <svg width={1000} height={1000}>
+          <Graph />
+        </svg>
+      </ReactSVGPanZoom>
+    </div>
+  );
+};
+
+export default ZoomableGraph;
