@@ -1,6 +1,5 @@
 // import React, { useRef, useEffect, useState, useCallback } from "react";
 // import Snap from "snapsvg-cjs";
- import c from "./SvgHome.module.css";
 
 // const SvgHome = () => {
 //   const svgRef = useRef(null);
@@ -254,12 +253,13 @@
 // export default SvgHome;
 
 
-
 // SvgHome.js
 import React, { useEffect, useState } from 'react';
+import { ReactSVGPanZoom } from 'react-svg-pan-zoom';
+import c from './SvgHome.module.css';
 
 const SvgHome = () => {
-  const [svgContent, setSvgContent] = useState(null);
+  const [svgContent, setSvgContent] = useState('');
 
   useEffect(() => {
     fetch(`${process.env.PUBLIC_URL}/assets/M4-LAYOUT-EVOLUTION-JULY-2024-Model.svg`)
@@ -269,8 +269,25 @@ const SvgHome = () => {
   }, []);
 
   return (
-    <div className={c.container} dangerouslySetInnerHTML={{ __html: svgContent }} />
+    <div className={c.container}>
+      <ReactSVGPanZoom
+        width={500}
+        height={500}
+        background="white"
+        toolbarPosition="none"
+        miniaturePosition="none"
+      >
+        <svg
+          width={1000}
+          height={1000}
+          dangerouslySetInnerHTML={{ __html: svgContent }}
+          xmlns="http://www.w3.org/2000/svg"
+        />
+      </ReactSVGPanZoom>
+    </div>
   );
 };
 
 export default SvgHome;
+
+
