@@ -133,12 +133,10 @@
 //     </div>
 //   );
 // };
-
-// export default SvgHome;
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import Snap from 'snapsvg-cjs';
 import c from "./SvgHome.module.css";
-import SvgWorker from './svgWorker'; 
+import SvgWorker from 'worker-loader!./svgWorker.js'; // Adjust the path as necessary
 
 const SvgHome = () => {
   const svgRef = useRef(null);
