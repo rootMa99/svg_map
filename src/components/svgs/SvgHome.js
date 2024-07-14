@@ -133,10 +133,6 @@
 //   );
 // };
 
-
-
-
-
 // ###########################################################################
 // import React, { useRef, useEffect, useState, useCallback } from 'react';
 // import Snap from 'snapsvg-cjs';
@@ -252,31 +248,86 @@
 
 // export default SvgHome;
 
-// SvgHome.js
-import React, { useState } from 'react';
+// import React, { useState } from 'react';
+// import { ReactSVGPanZoom } from 'react-svg-pan-zoom';
+// import { ReactComponent as MySvg } from '../../assets/404er.svg'; // Adjust the path to your SVG file
+// import c from './SvgHome.module.css';
+
+// const SvgHome = () => {
+//   const [tool, setTool] = useState('auto');
+//   const [value, setValue] = useState(null);
+//   const [viewer, setViewer] = useState(null);
+
+//   return (
+//     <div className={c.container}>
+//       <ReactSVGPanZoom
+//         width={"100vw"}
+//         height={"90vh"}
+//         background="white"
+//         ref={Viewer => setViewer(Viewer)}
+//         tool={tool}
+//         onChangeTool={tool => setTool(tool)}
+//         value={value}
+//         onChangeValue={value => setValue(value)}
+//         toolbarPosition="right"
+//         miniaturePosition="right"
+//         detectAutoPan={false}
+//       >
+//         <svg width="100%" height="100%">
+//           <MySvg />
+//         </svg>
+//       </ReactSVGPanZoom>
+//     </div>
+//   );
+// };
+
+// export default SvgHome;
+
+import React, { useState, useEffect } from 'react';
 import { ReactSVGPanZoom } from 'react-svg-pan-zoom';
-import { ReactComponent as MySvg } from '../../assets/404er.svg'; // Adjust the path to your SVG file
 import c from './SvgHome.module.css';
 
 const SvgHome = () => {
+  const [tool, setTool] = useState('auto');
+  const [value, setValue] = useState(null);
+  const [svgContent, setSvgContent] = useState(null);
   const [viewer, setViewer] = useState(null);
+  useEffect(() => {
+    const loadSvg = async () => {
+      try {
+        const response = await fetch(`${process.env.PUBLIC_URL}/assets/M4-LAYOUT-EVOLUTION-JULY-2024-Model.svg`);
+        const text = await response.text();
+        setSvgContent(text);
+      } catch (error) {
+        console.error('Error loading SVG:', error);
+      }
+    };
+    loadSvg();
+  }, []);
 
   return (
     <div className={c.container}>
-      <ReactSVGPanZoom
-        width={500}
-        height={500}
-        background="white"
-        ref={Viewer => setViewer(Viewer)}
-        tool="auto"
-        toolbarPosition="none"
-        miniaturePosition="none"
-        detectAutoPan={false}
-      >
-        <svg width="100%" height="100%">
-          <MySvg />
-        </svg>
-      </ReactSVGPanZoom>
+      {svgContent ? (
+        <ReactSVGPanZoom
+          width="100vw"
+          height="90vh"
+          background="white"
+          ref={Viewer => setViewer(Viewer)}
+          tool={tool}
+          onChangeTool={tool => setTool(tool)}
+          value={value}
+          onChangeValue={value => setValue(value)}
+          toolbarPosition="right"
+          miniaturePosition="right"
+          detectAutoPan={false}
+        >
+          <svg width="100%" height="100%">
+            <g dangerouslySetInnerHTML={{ __html: svgContent }} />
+          </svg>
+        </ReactSVGPanZoom>
+      ) : (
+        <p>Loading...</p>
+      )}
     </div>
   );
 };
