@@ -284,22 +284,125 @@
 // export default SvgHome;
 
 // #############################################################################
+import React, { useState, useEffect } from "react";
+import { ReactSVGPanZoom } from "react-svg-pan-zoom";
+import c from "./SvgHome.module.css";
 
-// import React, { useState, useEffect } from 'react';
-// import { ReactSVGPanZoom } from 'react-svg-pan-zoom';
+const SvgHome = () => {
+  const [tool, setTool] = useState("auto");
+  const [value, setValue] = useState(null);
+  const [svgContent, setSvgContent] = useState(null);
+  const [viewer, setViewer] = useState(null);
+
+  useEffect(() => {
+    const loadSvg = async () => {
+      try {
+        const response = await fetch(
+          `${process.env.PUBLIC_URL}/assets/M4-LAYOUT-EVOLUTION-JULY-2024-Model.svg`
+        );
+        const text = await response.text();
+
+        // Extract viewBox or width/height from the SVG content
+        const parser = new DOMParser();
+        const svgDoc = parser.parseFromString(text, "image/svg+xml");
+        const svgElement = svgDoc.documentElement;
+
+        const viewBox = svgElement.getAttribute("viewBox");
+        let viewBoxDimensions;
+        if (viewBox) {
+          viewBoxDimensions = viewBox.split(" ").map(Number);
+        } else {
+          const width = parseFloat(svgElement.getAttribute("width"));
+          const height = parseFloat(svgElement.getAttribute("height"));
+          viewBoxDimensions = [0, 0, width, height];
+        }
+
+        const [minX, minY, svgWidth, svgHeight] = viewBoxDimensions;
+
+        // Calculate initial scale to fit the SVG in the viewport
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+        const scaleX = viewportWidth / svgWidth;
+        const scaleY = viewportHeight / svgHeight;
+        const initialScale = Math.min(scaleX, scaleY);
+
+        // Initialize the ReactSVGPanZoom value
+        setValue({
+          version: 2,
+          mode: "idle",
+          focus: false,
+          SVGMinX: minX,
+          SVGMinY: minY,
+          SVGWidth: svgWidth,
+          SVGHeight: svgHeight,
+          viewerWidth: viewportWidth,
+          viewerHeight: viewportHeight,
+          scale: initialScale,
+          translationX: (viewportWidth - svgWidth * initialScale) / 2,
+          translationY: (viewportHeight - svgHeight * initialScale) / 2,
+          // Add additional fields required by ReactSVGPanZoom value
+          startX: null,
+          startY: null,
+          endX: null,
+          endY: null,
+          miniatureOpen: false,
+          preTool: null,
+        });
+
+        setSvgContent(text);
+      } catch (error) {
+        console.error("Error loading SVG:", error);
+      }
+    };
+    loadSvg();
+  }, []);
+
+  return (
+    <div className={c.container}>
+      {svgContent ? (
+        <ReactSVGPanZoom
+          width="100vw"
+          height="90vh"
+          background="white"
+          ref={(Viewer) => setViewer(Viewer)}
+          tool={tool}
+          onChangeTool={(tool) => setTool(tool)}
+          value={value}
+          onChangeValue={(value) => setValue(value)}
+          toolbarPosition="right"
+          miniaturePosition="right"
+          detectAutoPan={false}
+        >
+          <svg width="100%" height="100%">
+            <g dangerouslySetInnerHTML={{ __html: svgContent }} />
+          </svg>
+        </ReactSVGPanZoom>
+      ) : (
+        <p>Loading...</p>
+      )}
+    </div>
+  );
+};
+
+export default SvgHome;
+
+// import React, { useEffect, useRef } from 'react';
+// import { Canvg } from 'canvg';
 // import c from './SvgHome.module.css';
 
 // const SvgHome = () => {
-//   const [tool, setTool] = useState('auto');
-//   const [value, setValue] = useState(null);
-//   const [svgContent, setSvgContent] = useState(null);
-//   const [viewer, setViewer] = useState(null);
+//   const canvasRef = useRef(null);
+
 //   useEffect(() => {
 //     const loadSvg = async () => {
 //       try {
 //         const response = await fetch(`${process.env.PUBLIC_URL}/assets/M4-LAYOUT-EVOLUTION-JULY-2024-Model.svg`);
 //         const text = await response.text();
-//         setSvgContent(text);
+//         if (canvasRef.current) {
+//           const ctx = canvasRef.current.getContext('2d');
+//           const v = await Canvg.from(ctx, text);
+//           v.start();
+//         }
 //       } catch (error) {
 //         console.error('Error loading SVG:', error);
 //       }
@@ -309,63 +412,9 @@
 
 //   return (
 //     <div className={c.container}>
-//       {svgContent ? (
-//         <ReactSVGPanZoom
-//           width="100vw"
-//           height="90vh"
-//           background="white"
-//           ref={Viewer => setViewer(Viewer)}
-//           tool={tool}
-//           onChangeTool={tool => setTool(tool)}
-//           value={value}
-//           onChangeValue={value => setValue(value)}
-//           toolbarPosition="right"
-//           miniaturePosition="right"
-//           detectAutoPan={false}
-//         >
-//           <svg width="100%" height="100%">
-//             <g dangerouslySetInnerHTML={{ __html: svgContent }} />
-//           </svg>
-//         </ReactSVGPanZoom>
-//       ) : (
-//         <p>Loading...</p>
-//       )}
+//       <canvas ref={canvasRef} width={window.innerWidth} height={window.innerHeight} />
 //     </div>
 //   );
 // };
 
 // export default SvgHome;
-
-
-import React, { useEffect, useRef } from 'react';
-import { Canvg } from 'canvg';
-import c from './SvgHome.module.css';
-
-const SvgHome = () => {
-  const canvasRef = useRef(null);
-
-  useEffect(() => {
-    const loadSvg = async () => {
-      try {
-        const response = await fetch(`${process.env.PUBLIC_URL}/assets/M4-LAYOUT-EVOLUTION-JULY-2024-Model.svg`);
-        const text = await response.text();
-        if (canvasRef.current) {
-          const ctx = canvasRef.current.getContext('2d');
-          const v = await Canvg.from(ctx, text);
-          v.start();
-        }
-      } catch (error) {
-        console.error('Error loading SVG:', error);
-      }
-    };
-    loadSvg();
-  }, []);
-
-  return (
-    <div className={c.container}>
-      <canvas ref={canvasRef} width={window.innerWidth} height={window.innerHeight} />
-    </div>
-  );
-};
-
-export default SvgHome;
