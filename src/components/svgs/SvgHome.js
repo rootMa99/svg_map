@@ -256,7 +256,7 @@
 // SvgHome.js
 import React, { useState } from 'react';
 import { ReactSVGPanZoom } from 'react-svg-pan-zoom';
-import { ReactComponent as MySvg } from '../../assets/M4-LAYOUT-EVOLUTION-JULY-2024-Model.svg';
+import { ReactComponent as MySvg } from '../../assets/404er.svg';
 import c from './SvgHome.module.css';
 
 const SvgHome = () => {
