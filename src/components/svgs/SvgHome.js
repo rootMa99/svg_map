@@ -335,3 +335,37 @@
 // };
 
 // export default SvgHome;
+
+
+import React, { useEffect, useRef } from 'react';
+import { Canvg } from 'canvg';
+import c from './SvgHome.module.css';
+
+const SvgHome = () => {
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    const loadSvg = async () => {
+      try {
+        const response = await fetch(`${process.env.PUBLIC_URL}/assets/M4-LAYOUT-EVOLUTION-JULY-2024-Model.svg`);
+        const text = await response.text();
+        if (canvasRef.current) {
+          const ctx = canvasRef.current.getContext('2d');
+          const v = await Canvg.from(ctx, text);
+          v.start();
+        }
+      } catch (error) {
+        console.error('Error loading SVG:', error);
+      }
+    };
+    loadSvg();
+  }, []);
+
+  return (
+    <div className={c.container}>
+      <canvas ref={canvasRef} width={window.innerWidth} height={window.innerHeight} />
+    </div>
+  );
+};
+
+export default SvgHome;
