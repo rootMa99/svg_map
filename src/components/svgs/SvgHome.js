@@ -252,15 +252,14 @@
 
 // export default SvgHome;
 
-
 // SvgHome.js
 import React, { useState } from 'react';
 import { ReactSVGPanZoom } from 'react-svg-pan-zoom';
-import { ReactComponent as MySvg } from '../../assets/404er.svg';
+import { ReactComponent as MySvg } from '../../assets/404er.svg'; // Adjust the path to your SVG file
 import c from './SvgHome.module.css';
 
 const SvgHome = () => {
-  const [zoomEnabled, setZoomEnabled] = useState(true);
+  const [viewer, setViewer] = useState(null);
 
   return (
     <div className={c.container}>
@@ -268,20 +267,18 @@ const SvgHome = () => {
         width={500}
         height={500}
         background="white"
+        ref={Viewer => setViewer(Viewer)}
+        tool="auto"
         toolbarPosition="none"
         miniaturePosition="none"
         detectAutoPan={false}
-        onChange={(event) => {
-          // You can handle zoom and pan changes here
-        }}
       >
-        <MySvg style={{ width: '100%', height: '100%' }} />
+        <svg width="100%" height="100%">
+          <MySvg />
+        </svg>
       </ReactSVGPanZoom>
     </div>
   );
 };
 
 export default SvgHome;
-
-
-
