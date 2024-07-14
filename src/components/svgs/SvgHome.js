@@ -284,12 +284,12 @@
 // export default SvgHome;
 
 // #############################################################################
-import React, { useState, useEffect } from "react";
-import { ReactSVGPanZoom } from "react-svg-pan-zoom";
-import c from "./SvgHome.module.css";
+import React, { useState, useEffect } from 'react';
+import { ReactSVGPanZoom } from 'react-svg-pan-zoom';
+import c from './SvgHome.module.css';
 
 const SvgHome = () => {
-  const [tool, setTool] = useState("auto");
+  const [tool, setTool] = useState('auto');
   const [value, setValue] = useState(null);
   const [svgContent, setSvgContent] = useState(null);
   const [viewer, setViewer] = useState(null);
@@ -297,23 +297,21 @@ const SvgHome = () => {
   useEffect(() => {
     const loadSvg = async () => {
       try {
-        const response = await fetch(
-          `${process.env.PUBLIC_URL}/assets/M4-LAYOUT-EVOLUTION-JULY-2024-Model.svg`
-        );
+        const response = await fetch(`${process.env.PUBLIC_URL}/assets/M4-LAYOUT-EVOLUTION-JULY-2024-Model.svg`);
         const text = await response.text();
 
         // Extract viewBox or width/height from the SVG content
         const parser = new DOMParser();
-        const svgDoc = parser.parseFromString(text, "image/svg+xml");
+        const svgDoc = parser.parseFromString(text, 'image/svg+xml');
         const svgElement = svgDoc.documentElement;
 
-        const viewBox = svgElement.getAttribute("viewBox");
+        const viewBox = svgElement.getAttribute('viewBox');
         let viewBoxDimensions;
         if (viewBox) {
-          viewBoxDimensions = viewBox.split(" ").map(Number);
+          viewBoxDimensions = viewBox.split(' ').map(Number);
         } else {
-          const width = parseFloat(svgElement.getAttribute("width"));
-          const height = parseFloat(svgElement.getAttribute("height"));
+          const width = parseFloat(svgElement.getAttribute('width'));
+          const height = parseFloat(svgElement.getAttribute('height'));
           viewBoxDimensions = [0, 0, width, height];
         }
 
@@ -329,7 +327,7 @@ const SvgHome = () => {
         // Initialize the ReactSVGPanZoom value
         setValue({
           version: 2,
-          mode: "idle",
+          mode: 'idle',
           focus: false,
           SVGMinX: minX,
           SVGMinY: minY,
@@ -351,7 +349,7 @@ const SvgHome = () => {
 
         setSvgContent(text);
       } catch (error) {
-        console.error("Error loading SVG:", error);
+        console.error('Error loading SVG:', error);
       }
     };
     loadSvg();
@@ -364,11 +362,11 @@ const SvgHome = () => {
           width="100vw"
           height="90vh"
           background="white"
-          ref={(Viewer) => setViewer(Viewer)}
+          ref={Viewer => setViewer(Viewer)}
           tool={tool}
-          onChangeTool={(tool) => setTool(tool)}
+          onChangeTool={tool => setTool(tool)}
           value={value}
-          onChangeValue={(value) => setValue(value)}
+          onChangeValue={value => setValue(value)}
           toolbarPosition="right"
           miniaturePosition="right"
           detectAutoPan={false}
