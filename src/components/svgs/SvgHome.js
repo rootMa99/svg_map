@@ -392,7 +392,7 @@ const SvgHome = () => {
     const loadSvg = async () => {
       try {
         const response = await fetch(
-          `${process.env.PUBLIC_URL}/assets/output.svg`
+          `${process.env.PUBLIC_URL}/assets/outputs.svg`
         );
         const text = await response.text();
         parseSvg(text);
