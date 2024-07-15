@@ -392,7 +392,7 @@ const SvgHome = () => {
     const loadSvg = async () => {
       try {
         const response = await fetch(
-          `${process.env.PUBLIC_URL}/assets/outputs.svg`
+          `${process.env.PUBLIC_URL}/assets/output.svg`
         );
         const text = await response.text();
         parseSvg(text);
@@ -471,8 +471,11 @@ const SvgHome = () => {
           miniaturePosition="right"
           detectAutoPan={false}
         >
-            
-          <svg width="100%" height="100%" viewBox={`${value?.SVGMinX} ${value?.SVGMinY} ${value?.SVGWidth} ${value?.SVGHeight}`} >
+          <svg
+            width="100%"
+            height="100%"
+            viewBox={`${value?.SVGMinX} ${value?.SVGMinY} ${value?.SVGWidth} ${value?.SVGHeight}`}
+          >
             <g dangerouslySetInnerHTML={{ __html: svgContent }} />
           </svg>
         </ReactSVGPanZoom>
