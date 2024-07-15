@@ -1,7 +1,7 @@
-/* SvgHome.module.css */
+
 .container {
-  width: 100vw; /* Adjust width as needed */
-  height: 100vh; /* Adjust height as needed */
-  overflow: auto; /* Enable scrolling */
-  border: 1px solid #ccc; /* Optional: Add a border */
+  width: 100vw; 
+  height: 100vh; 
+  overflow: auto; 
+  border: 1px solid #ccc;
 }
