@@ -375,111 +375,106 @@
 
 // export default SvgHome;
 //""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { ReactSVGPanZoom, TOOL_NONE } from "react-svg-pan-zoom";
 import c from "./SvgHome.module.css";
 
 const SvgHome = () => {
-  const [tool, setTool] = useState(TOOL_NONE);
-  const [value, setValue] = useState(null);
-  const [svgContent, setSvgContent] = useState(null);
-  const [viewer, setViewer] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const svgRef = useRef(null);
+  const [{ tool, value, svgContent, isLoading }, setState] = useState({
+    tool: TOOL_NONE,
+    value: null,
+    svgContent: null,
+    isLoading: true,
+  });
 
-  useEffect(() => {
-    const loadSvg = async () => {
-      try {
-        const response = await fetch(
-          `${process.env.PUBLIC_URL}/assets/output.svg`
-        );
-        const text = await response.text();
-        parseSvg(text);
-      } catch (error) {
-        console.error("Error loading SVG:", error);
-        setIsLoading(false);
-      }
-    };
-
-    loadSvg();
-  }, []);
-
-  const parseSvg = (svgString) => {
+  const parseSvg = useCallback((svgString) => {
     const parser = new DOMParser();
     const svgDoc = parser.parseFromString(svgString, "image/svg+xml");
     const svgElement = svgDoc.documentElement;
 
-    setupViewerDimensions(svgElement);
-
-    // Extract only the content inside the <svg> tags
-    const svgContent = svgElement.innerHTML;
-    setSvgContent(svgContent);
-    setIsLoading(false);
-  };
-
-  const setupViewerDimensions = (svgElement) => {
     const viewBox = svgElement.getAttribute("viewBox");
-    let viewBoxDimensions;
-    if (viewBox) {
-      viewBoxDimensions = viewBox.split(" ").map(Number);
-    } else {
-      const width = parseFloat(svgElement.getAttribute("width"));
-      const height = parseFloat(svgElement.getAttribute("height"));
-      viewBoxDimensions = [0, 0, width, height];
-    }
+    const [minX, minY, svgWidth, svgHeight] = viewBox
+      ? viewBox.split(" ").map(Number)
+      : [
+          0,
+          0,
+          parseFloat(svgElement.getAttribute("width")),
+          parseFloat(svgElement.getAttribute("height")),
+        ];
 
-    const [minX, minY, svgWidth, svgHeight] = viewBoxDimensions;
     const viewportWidth = window.innerWidth;
-    const viewportHeight = window.innerHeight;
+    const viewportHeight = window.innerHeight * 0.9; // Adjust for the ReactSVGPanZoom height
     const scaleX = viewportWidth / svgWidth;
     const scaleY = viewportHeight / svgHeight;
-    const initialScale = Math.min(scaleX, scaleY);
-    setValue({
-      version: 2,
-      mode: "idle",
-      focus: false,
-      SVGMinX: minX,
-      SVGMinY: minY,
-      SVGWidth: svgWidth,
-      SVGHeight: svgHeight,
-      viewerWidth: viewportWidth,
-      viewerHeight: viewportHeight,
-      scaleFactorMin: 0.1,
-      scaleFactorMax: 10,
-      scale: initialScale,
-      translationX: (viewportWidth - svgWidth * initialScale) / 2,
-      translationY: (viewportHeight - svgHeight * initialScale) / 2,
-    });
-  };
+    const initialScale = Math.min(scaleX, scaleY) * 0.95; // 95% to leave a small margin
+
+    setState((prevState) => ({
+      ...prevState,
+      svgContent: svgElement.innerHTML,
+      isLoading: false,
+      value: {
+        version: 2,
+        mode: "idle",
+        focus: false,
+        SVGMinX: minX,
+        SVGMinY: minY,
+        SVGWidth: svgWidth,
+        SVGHeight: svgHeight,
+        viewerWidth: viewportWidth,
+        viewerHeight: viewportHeight,
+        scaleFactorMin: initialScale / 2,
+        scaleFactorMax: initialScale * 10,
+        scale: initialScale,
+        translationX: (viewportWidth - svgWidth * initialScale) / 2,
+        translationY: (viewportHeight - svgHeight * initialScale) / 2,
+      },
+    }));
+  }, []);
+
+  useEffect(() => {
+    fetch(`${process.env.PUBLIC_URL}/assets/output.svg`)
+      .then((response) => response.text())
+      .then(parseSvg)
+      .catch((error) => {
+        console.error("Error loading SVG:", error);
+        setState((prevState) => ({ ...prevState, isLoading: false }));
+      });
+  }, [parseSvg]);
+
+  const handleToolChange = useCallback((newTool) => {
+    setState((prevState) => ({ ...prevState, tool: newTool }));
+  }, []);
+
+  const handleValueChange = useCallback((newValue) => {
+    setState((prevState) => ({ ...prevState, value: newValue }));
+  }, []);
+
+  if (isLoading) return <p>Loading...</p>;
 
   return (
     <div className={c.container}>
-      {isLoading ? (
-        <p>Loading...</p>
-      ) : (
-        <ReactSVGPanZoom
-          width={window.innerWidth}
-          height={window.innerHeight * 0.9}
-          background="white"
-          ref={(Viewer) => setViewer(Viewer)}
-          tool={tool}
-          onChangeTool={(tool) => setTool(tool)}
-          value={value}
-          onChangeValue={(value) => setValue(value)}
-          toolbarPosition="right"
-          miniaturePosition="right"
-          detectAutoPan={false}
+      <ReactSVGPanZoom
+        width={window.innerWidth}
+        height={window.innerHeight * 0.9}
+        background="white"
+        tool={tool}
+        onChangeTool={handleToolChange}
+        value={value}
+        onChangeValue={handleValueChange}
+        toolbarPosition="right"
+        miniaturePosition="right"
+        detectAutoPan={false}
+        scaleFactorMin={value.scaleFactorMin}
+        scaleFactorMax={value.scaleFactorMax}
+      >
+        <svg
+          width={value.SVGWidth}
+          height={value.SVGHeight}
+          viewBox={`${value.SVGMinX} ${value.SVGMinY} ${value.SVGWidth} ${value.SVGHeight}`}
         >
-          <svg
-            width="100%"
-            height="100%"
-            viewBox={`${value?.SVGMinX} ${value?.SVGMinY} ${value?.SVGWidth} ${value?.SVGHeight}`}
-          >
-            <g dangerouslySetInnerHTML={{ __html: svgContent }} />
-          </svg>
-        </ReactSVGPanZoom>
-      )}
+          <g dangerouslySetInnerHTML={{ __html: svgContent }} />
+        </svg>
+      </ReactSVGPanZoom>
     </div>
   );
 };
