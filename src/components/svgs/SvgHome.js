@@ -284,15 +284,112 @@
 // export default SvgHome;
 
 // #############################################################################
-import React, { useState, useEffect } from "react";
+// import React, { useState, useEffect } from "react";
+// import { ReactSVGPanZoom, TOOL_NONE } from "react-svg-pan-zoom";
+// import c from "./SvgHome.module.css";
+
+// const SvgHome = () => {
+//   const [tool, setTool] = useState(TOOL_NONE);
+//   const [value, setValue] = useState(null);
+//   const [svgContent, setSvgContent] = useState(null);
+//   const [viewer, setViewer] = useState(null);
+
+//   useEffect(() => {
+//     const loadSvg = async () => {
+//       try {
+//         const response = await fetch(
+//           `${process.env.PUBLIC_URL}/assets/M4-LAYOUT-EVOLUTION-JULY-2024-Model.svg`
+//         );
+//         const text = await response.text();
+//         const parser = new DOMParser();
+//         const svgDoc = parser.parseFromString(text, "image/svg+xml");
+//         const svgElement = svgDoc.documentElement;
+
+//         const viewBox = svgElement.getAttribute("viewBox");
+//         let viewBoxDimensions;
+//         if (viewBox) {
+//           viewBoxDimensions = viewBox.split(" ").map(Number);
+//         } else {
+//           const width = parseFloat(svgElement.getAttribute("width"));
+//           const height = parseFloat(svgElement.getAttribute("height"));
+//           viewBoxDimensions = [0, 0, width, height];
+//         }
+
+//         const [minX, minY, svgWidth, svgHeight] = viewBoxDimensions;
+//         const viewportWidth = window.innerWidth;
+//         const viewportHeight = window.innerHeight;
+//         const scaleX = viewportWidth / svgWidth;
+//         const scaleY = viewportHeight / svgHeight;
+//         const initialScale = Math.min(scaleX, scaleY);
+//         setValue({
+//           version: 2,
+//           mode: "idle",
+//           focus: false,
+//           SVGMinX: minX,
+//           SVGMinY: minY,
+//           SVGWidth: svgWidth,
+//           SVGHeight: svgHeight,
+//           viewerWidth: viewportWidth,
+//           viewerHeight: viewportHeight,
+//           scaleFactorMin: 0.1,
+//           scaleFactorMax: 10,
+//           scale: initialScale,
+//           translationX: (viewportWidth - svgWidth * initialScale) / 2,
+//           translationY: (viewportHeight - svgHeight * initialScale) / 2,
+//         });
+
+//         setSvgContent(text);
+//       } catch (error) {
+//         console.error("Error loading SVG:", error);
+//       }
+//     };
+//     loadSvg();
+//   }, []);
+
+//   return (
+//     <div className={c.container}>
+//       {svgContent ? (
+//         <ReactSVGPanZoom
+//           width="100vw"
+//           height="90vh"
+//           background="white"
+//           ref={(Viewer) => setViewer(Viewer)}
+//           tool={tool}
+//           onChangeTool={(tool) => setTool(tool)}
+//           value={value}
+//           onChangeValue={(value) => setValue(value)}
+//           toolbarPosition="right"
+//           miniaturePosition="right"
+//           detectAutoPan={false}
+//         >
+//           <svg width="100%" height="100%">
+//             <g dangerouslySetInnerHTML={{ __html: svgContent }} />
+//           </svg>
+//         </ReactSVGPanZoom>
+//       ) : (
+//         <p>Loading...</p>
+//       )}
+//     </div>
+//   );
+// };
+
+// export default SvgHome;
+//""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+
+import React, { useState, useEffect, useRef } from "react";
 import { ReactSVGPanZoom, TOOL_NONE } from "react-svg-pan-zoom";
 import c from "./SvgHome.module.css";
+
+const CHUNK_SIZE = 1000; // Adjust this based on your SVG complexity
 
 const SvgHome = () => {
   const [tool, setTool] = useState(TOOL_NONE);
   const [value, setValue] = useState(null);
   const [svgContent, setSvgContent] = useState(null);
   const [viewer, setViewer] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const svgRef = useRef(null);
 
   useEffect(() => {
     const loadSvg = async () => {
@@ -300,55 +397,95 @@ const SvgHome = () => {
         const response = await fetch(
           `${process.env.PUBLIC_URL}/assets/M4-LAYOUT-EVOLUTION-JULY-2024-Model.svg`
         );
-        const text = await response.text();
-        const parser = new DOMParser();
-        const svgDoc = parser.parseFromString(text, "image/svg+xml");
-        const svgElement = svgDoc.documentElement;
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let svg = '';
 
-        const viewBox = svgElement.getAttribute("viewBox");
-        let viewBoxDimensions;
-        if (viewBox) {
-          viewBoxDimensions = viewBox.split(" ").map(Number);
-        } else {
-          const width = parseFloat(svgElement.getAttribute("width"));
-          const height = parseFloat(svgElement.getAttribute("height"));
-          viewBoxDimensions = [0, 0, width, height];
-        }
+        const processChunk = async (result) => {
+          if (result.done) {
+            parseSvg(svg);
+            return;
+          }
 
-        const [minX, minY, svgWidth, svgHeight] = viewBoxDimensions;
-        const viewportWidth = window.innerWidth;
-        const viewportHeight = window.innerHeight;
-        const scaleX = viewportWidth / svgWidth;
-        const scaleY = viewportHeight / svgHeight;
-        const initialScale = Math.min(scaleX, scaleY);
-        setValue({
-          version: 2,
-          mode: "idle",
-          focus: false,
-          SVGMinX: minX,
-          SVGMinY: minY,
-          SVGWidth: svgWidth,
-          SVGHeight: svgHeight,
-          viewerWidth: viewportWidth,
-          viewerHeight: viewportHeight,
-          scaleFactorMin: 0.1,
-          scaleFactorMax: 10,
-          scale: initialScale,
-          translationX: (viewportWidth - svgWidth * initialScale) / 2,
-          translationY: (viewportHeight - svgHeight * initialScale) / 2,
-        });
+          svg += decoder.decode(result.value, { stream: true });
+          
+          if (svg.length > CHUNK_SIZE) {
+            parseSvg(svg);
+            svg = '';
+          }
 
-        setSvgContent(text);
+          const nextChunk = await reader.read();
+          processChunk(nextChunk);
+        };
+
+        const firstChunk = await reader.read();
+        processChunk(firstChunk);
       } catch (error) {
         console.error("Error loading SVG:", error);
+        setIsLoading(false);
       }
     };
+
     loadSvg();
   }, []);
 
+  const parseSvg = (svgString) => {
+    const parser = new DOMParser();
+    const svgDoc = parser.parseFromString(svgString, "image/svg+xml");
+    const svgElement = svgDoc.documentElement;
+
+    if (!svgRef.current) {
+      svgRef.current = svgElement;
+      setupViewerDimensions(svgElement);
+    } else {
+      const newElements = Array.from(svgElement.children);
+      newElements.forEach(el => svgRef.current.appendChild(el));
+    }
+
+    setSvgContent(svgRef.current.outerHTML);
+    setIsLoading(false);
+  };
+
+  const setupViewerDimensions = (svgElement) => {
+    const viewBox = svgElement.getAttribute("viewBox");
+    let viewBoxDimensions;
+    if (viewBox) {
+      viewBoxDimensions = viewBox.split(" ").map(Number);
+    } else {
+      const width = parseFloat(svgElement.getAttribute("width"));
+      const height = parseFloat(svgElement.getAttribute("height"));
+      viewBoxDimensions = [0, 0, width, height];
+    }
+
+    const [minX, minY, svgWidth, svgHeight] = viewBoxDimensions;
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    const scaleX = viewportWidth / svgWidth;
+    const scaleY = viewportHeight / svgHeight;
+    const initialScale = Math.min(scaleX, scaleY);
+    setValue({
+      version: 2,
+      mode: "idle",
+      focus: false,
+      SVGMinX: minX,
+      SVGMinY: minY,
+      SVGWidth: svgWidth,
+      SVGHeight: svgHeight,
+      viewerWidth: viewportWidth,
+      viewerHeight: viewportHeight,
+      scaleFactorMin: 0.1,
+      scaleFactorMax: 10,
+      scale: initialScale,
+      translationX: (viewportWidth - svgWidth * initialScale) / 2,
+      translationY: (viewportHeight - svgHeight * initialScale) / 2,
+    });
+  };
+
   return (
     <div className={c.container}>
-      {svgContent ? (
+      {isLoading ? (
+        <p>Loading...</p>
+      ) : (
         <ReactSVGPanZoom
           width="100vw"
           height="90vh"
@@ -362,12 +499,8 @@ const SvgHome = () => {
           miniaturePosition="right"
           detectAutoPan={false}
         >
-          <svg width="100%" height="100%">
-            <g dangerouslySetInnerHTML={{ __html: svgContent }} />
-          </svg>
+          <svg width="100%" height="100%" dangerouslySetInnerHTML={{ __html: svgContent }} />
         </ReactSVGPanZoom>
-      ) : (
-        <p>Loading...</p>
       )}
     </div>
   );
