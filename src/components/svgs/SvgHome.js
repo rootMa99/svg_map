@@ -376,12 +376,9 @@
 // export default SvgHome;
 //""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-
 import React, { useState, useEffect, useRef } from "react";
 import { ReactSVGPanZoom, TOOL_NONE } from "react-svg-pan-zoom";
 import c from "./SvgHome.module.css";
-
-const CHUNK_SIZE = 1000; // Adjust this based on your SVG complexity
 
 const SvgHome = () => {
   const [tool, setTool] = useState(TOOL_NONE);
@@ -397,29 +394,8 @@ const SvgHome = () => {
         const response = await fetch(
           `${process.env.PUBLIC_URL}/assets/M4-LAYOUT-EVOLUTION-JULY-2024-Model.svg`
         );
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        let svg = '';
-
-        const processChunk = async (result) => {
-          if (result.done) {
-            parseSvg(svg);
-            return;
-          }
-
-          svg += decoder.decode(result.value, { stream: true });
-          
-          if (svg.length > CHUNK_SIZE) {
-            parseSvg(svg);
-            svg = '';
-          }
-
-          const nextChunk = await reader.read();
-          processChunk(nextChunk);
-        };
-
-        const firstChunk = await reader.read();
-        processChunk(firstChunk);
+        const text = await response.text();
+        parseSvg(text);
       } catch (error) {
         console.error("Error loading SVG:", error);
         setIsLoading(false);
@@ -434,15 +410,11 @@ const SvgHome = () => {
     const svgDoc = parser.parseFromString(svgString, "image/svg+xml");
     const svgElement = svgDoc.documentElement;
 
-    if (!svgRef.current) {
-      svgRef.current = svgElement;
-      setupViewerDimensions(svgElement);
-    } else {
-      const newElements = Array.from(svgElement.children);
-      newElements.forEach(el => svgRef.current.appendChild(el));
-    }
+    setupViewerDimensions(svgElement);
 
-    setSvgContent(svgRef.current.outerHTML);
+    // Extract only the content inside the <svg> tags
+    const svgContent = svgElement.innerHTML;
+    setSvgContent(svgContent);
     setIsLoading(false);
   };
 
@@ -487,8 +459,8 @@ const SvgHome = () => {
         <p>Loading...</p>
       ) : (
         <ReactSVGPanZoom
-          width="100vw"
-          height="90vh"
+          width={window.innerWidth}
+          height={window.innerHeight * 0.9}
           background="white"
           ref={(Viewer) => setViewer(Viewer)}
           tool={tool}
@@ -499,7 +471,10 @@ const SvgHome = () => {
           miniaturePosition="right"
           detectAutoPan={false}
         >
-          <svg width="100%" height="100%" dangerouslySetInnerHTML={{ __html: svgContent }} />
+            
+          <svg width="100%" height="100%" viewBox={`${value?.SVGMinX} ${value?.SVGMinY} ${value?.SVGWidth} ${value?.SVGHeight}`} >
+            <g dangerouslySetInnerHTML={{ __html: svgContent }} />
+          </svg>
         </ReactSVGPanZoom>
       )}
     </div>
