@@ -375,7 +375,7 @@
 
 // export default SvgHome;
 //""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-import React, { useState, useEffect, useCallback, useReducer, memo } from "react";
+import React, { useEffect, useCallback, useReducer, memo } from "react";
 import { ReactSVGPanZoom, TOOL_NONE } from "react-svg-pan-zoom";
 import c from "./SvgHome.module.css";
 
