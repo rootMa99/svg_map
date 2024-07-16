@@ -375,17 +375,37 @@
 
 // export default SvgHome;
 //""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useReducer, memo } from "react";
 import { ReactSVGPanZoom, TOOL_NONE } from "react-svg-pan-zoom";
 import c from "./SvgHome.module.css";
 
-const SvgHome = () => {
-  const [{ tool, value, svgContent, isLoading }, setState] = useState({
-    tool: TOOL_NONE,
-    value: null,
-    svgContent: null,
-    isLoading: true,
-  });
+// Initial state
+const initialState = {
+  tool: TOOL_NONE,
+  value: null,
+  svgContent: null,
+  isLoading: true,
+};
+
+// Reducer function
+const reducer = (state, action) => {
+  switch (action.type) {
+    case "SET_TOOL":
+      return { ...state, tool: action.payload };
+    case "SET_VALUE":
+      return { ...state, value: action.payload };
+    case "SET_SVG_CONTENT":
+      return { ...state, svgContent: action.payload };
+    case "SET_LOADING":
+      return { ...state, isLoading: action.payload };
+    default:
+      return state;
+  }
+};
+
+const SvgHome = memo(() => {
+  const [state, dispatch] = useReducer(reducer, initialState);
+  const { tool, value, svgContent, isLoading } = state;
 
   const parseSvg = useCallback((svgString) => {
     const parser = new DOMParser();
@@ -408,11 +428,14 @@ const SvgHome = () => {
     const scaleY = viewportHeight / svgHeight;
     const initialScale = Math.min(scaleX, scaleY) * 0.95; // 95% to leave a small margin
 
-    setState((prevState) => ({
-      ...prevState,
-      svgContent: svgElement.innerHTML,
-      isLoading: false,
-      value: {
+    dispatch({
+      type: "SET_SVG_CONTENT",
+      payload: svgElement.innerHTML,
+    });
+
+    dispatch({
+      type: "SET_VALUE",
+      payload: {
         version: 2,
         mode: "idle",
         focus: false,
@@ -428,25 +451,33 @@ const SvgHome = () => {
         translationX: (viewportWidth - svgWidth * initialScale) / 2,
         translationY: (viewportHeight - svgHeight * initialScale) / 2,
       },
-    }));
+    });
+
+    dispatch({ type: "SET_LOADING", payload: false });
   }, []);
 
   useEffect(() => {
-    fetch(`${process.env.PUBLIC_URL}/assets/output.svg`)
+    const controller = new AbortController();
+
+    fetch(`${process.env.PUBLIC_URL}/assets/output.svg`, { signal: controller.signal })
       .then((response) => response.text())
       .then(parseSvg)
       .catch((error) => {
-        console.error("Error loading SVG:", error);
-        setState((prevState) => ({ ...prevState, isLoading: false }));
+        if (error.name !== 'AbortError') {
+          console.error("Error loading SVG:", error);
+          dispatch({ type: "SET_LOADING", payload: false });
+        }
       });
+
+    return () => controller.abort();
   }, [parseSvg]);
 
   const handleToolChange = useCallback((newTool) => {
-    setState((prevState) => ({ ...prevState, tool: newTool }));
+    dispatch({ type: "SET_TOOL", payload: newTool });
   }, []);
 
   const handleValueChange = useCallback((newValue) => {
-    setState((prevState) => ({ ...prevState, value: newValue }));
+    dispatch({ type: "SET_VALUE", payload: newValue });
   }, []);
 
   if (isLoading) return <p>Loading...</p>;
@@ -477,6 +508,7 @@ const SvgHome = () => {
       </ReactSVGPanZoom>
     </div>
   );
-};
+});
 
 export default SvgHome;
+
