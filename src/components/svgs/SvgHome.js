@@ -459,11 +459,13 @@ const SvgHome = memo(() => {
   useEffect(() => {
     const controller = new AbortController();
 
-    fetch(`${process.env.PUBLIC_URL}/assets/output.svg`, { signal: controller.signal })
+    fetch(`${process.env.PUBLIC_URL}/assets/output.svg`, {
+      signal: controller.signal,
+    })
       .then((response) => response.text())
       .then(parseSvg)
       .catch((error) => {
-        if (error.name !== 'AbortError') {
+        if (error.name !== "AbortError") {
           console.error("Error loading SVG:", error);
           dispatch({ type: "SET_LOADING", payload: false });
         }
@@ -511,4 +513,3 @@ const SvgHome = memo(() => {
 });
 
 export default SvgHome;
-
