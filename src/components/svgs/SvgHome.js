@@ -374,7 +374,8 @@
 // };
 
 // export default SvgHome;
-//""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+//"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
 import React, { useEffect, useCallback, useReducer, memo, useRef } from "react";
 import { ReactSVGPanZoom, TOOL_NONE } from "react-svg-pan-zoom";
 import c from "./SvgHome.module.css";
