@@ -508,4 +508,3 @@ const SvgHome = memo(() => {
 });
 
 export default SvgHome;
-
