@@ -403,7 +403,7 @@ const reducer = (state, action) => {
 const SvgHome = memo(() => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const { tool, value, isLoading } = state;
-  const svgRef = useRef(null);
+  const svgContainerRef = useRef(null);
 
   const parseSvg = useCallback((svgString) => {
     const parser = new DOMParser();
@@ -426,10 +426,8 @@ const SvgHome = memo(() => {
     const scaleY = viewportHeight / svgHeight;
     const initialScale = Math.min(scaleX, scaleY) * 0.95; // 95% to leave a small margin
 
-    // Directly set the SVG content using the ref
-    if (svgRef.current) {
-      svgRef.current.innerHTML = "";
-      svgRef.current.appendChild(svgElement);
+    if (svgContainerRef.current) {
+      svgContainerRef.current.innerHTML = svgElement.outerHTML;
     }
 
     dispatch({
@@ -499,10 +497,10 @@ const SvgHome = memo(() => {
         scaleFactorMax={value.scaleFactorMax}
       >
         <svg
-          ref={svgRef}
           width={value.SVGWidth}
           height={value.SVGHeight}
           viewBox={`${value.SVGMinX} ${value.SVGMinY} ${value.SVGWidth} ${value.SVGHeight}`}
+          ref={svgContainerRef}
         />
       </ReactSVGPanZoom>
     </div>
