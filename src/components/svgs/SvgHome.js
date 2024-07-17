@@ -428,11 +428,7 @@ const SvgHome = memo(() => {
     const scaleY = viewportHeight / svgHeight;
     const initialScale = Math.min(scaleX, scaleY) * 0.95; // 95% to leave a small margin
 
-    dispatch({
-      type: "SET_SVG_CONTENT",
-      payload: svgElement.innerHTML,
-    });
-
+    dispatch({ type: "SET_SVG_CONTENT", payload: svgElement.innerHTML });
     dispatch({
       type: "SET_VALUE",
       payload: {
@@ -452,7 +448,6 @@ const SvgHome = memo(() => {
         translationY: (viewportHeight - svgHeight * initialScale) / 2,
       },
     });
-
     dispatch({ type: "SET_LOADING", payload: false });
   }, []);
 
@@ -513,3 +508,4 @@ const SvgHome = memo(() => {
 });
 
 export default SvgHome;
+
