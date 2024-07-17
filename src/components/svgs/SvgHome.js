@@ -379,14 +379,12 @@ import React, { useEffect, useCallback, useReducer, memo, useRef } from "react";
 import { ReactSVGPanZoom, TOOL_NONE } from "react-svg-pan-zoom";
 import c from "./SvgHome.module.css";
 
-// Initial state
 const initialState = {
   tool: TOOL_NONE,
   value: null,
   isLoading: true,
 };
 
-// Reducer function
 const reducer = (state, action) => {
   switch (action.type) {
     case "SET_TOOL":
@@ -403,7 +401,7 @@ const reducer = (state, action) => {
 const SvgHome = memo(() => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const { tool, value, isLoading } = state;
-  const svgRef = useRef(null); // Use ref to store the SVG content
+  const svgRef = useRef(null);
 
   const parseSvg = useCallback((svgString) => {
     const parser = new DOMParser();
