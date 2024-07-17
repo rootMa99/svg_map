@@ -375,7 +375,7 @@
 
 // export default SvgHome;
 //""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-import React, { useEffect, useCallback, useReducer, memo } from "react";
+import React, { useEffect, useCallback, useReducer, memo, useRef } from "react";
 import { ReactSVGPanZoom, TOOL_NONE } from "react-svg-pan-zoom";
 import c from "./SvgHome.module.css";
 
@@ -383,7 +383,6 @@ import c from "./SvgHome.module.css";
 const initialState = {
   tool: TOOL_NONE,
   value: null,
-  svgContent: null,
   isLoading: true,
 };
 
@@ -394,8 +393,6 @@ const reducer = (state, action) => {
       return { ...state, tool: action.payload };
     case "SET_VALUE":
       return { ...state, value: action.payload };
-    case "SET_SVG_CONTENT":
-      return { ...state, svgContent: action.payload };
     case "SET_LOADING":
       return { ...state, isLoading: action.payload };
     default:
@@ -405,7 +402,8 @@ const reducer = (state, action) => {
 
 const SvgHome = memo(() => {
   const [state, dispatch] = useReducer(reducer, initialState);
-  const { tool, value, svgContent, isLoading } = state;
+  const { tool, value, isLoading } = state;
+  const svgRef = useRef(null); // Use ref to store the SVG content
 
   const parseSvg = useCallback((svgString) => {
     const parser = new DOMParser();
@@ -428,7 +426,9 @@ const SvgHome = memo(() => {
     const scaleY = viewportHeight / svgHeight;
     const initialScale = Math.min(scaleX, scaleY) * 0.95; // 95% to leave a small margin
 
-    dispatch({ type: "SET_SVG_CONTENT", payload: svgElement.innerHTML });
+    // Set the SVG content in the ref
+    svgRef.current = svgElement.innerHTML;
+
     dispatch({
       type: "SET_VALUE",
       payload: {
@@ -500,7 +500,7 @@ const SvgHome = memo(() => {
           height={value.SVGHeight}
           viewBox={`${value.SVGMinX} ${value.SVGMinY} ${value.SVGWidth} ${value.SVGHeight}`}
         >
-          <g dangerouslySetInnerHTML={{ __html: svgContent }} />
+          <g dangerouslySetInnerHTML={{ __html: svgRef.current }} />
         </svg>
       </ReactSVGPanZoom>
     </div>
