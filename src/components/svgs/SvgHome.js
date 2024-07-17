@@ -421,12 +421,12 @@ const SvgHome = memo(() => {
         ];
 
     const viewportWidth = window.innerWidth;
-    const viewportHeight = window.innerHeight * 0.9; // Adjust for the ReactSVGPanZoom height
+    const viewportHeight = window.innerHeight * 0.9; 
     const scaleX = viewportWidth / svgWidth;
     const scaleY = viewportHeight / svgHeight;
-    const initialScale = Math.min(scaleX, scaleY) * 0.95; // 95% to leave a small margin
+    const initialScale = Math.min(scaleX, scaleY) * 0.95; 
 
-    // Set the SVG content in the ref
+   
     svgRef.current = svgElement.innerHTML;
 
     dispatch({
