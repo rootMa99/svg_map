@@ -375,18 +375,17 @@
 
 // export default SvgHome;
 //"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
 import React, { useEffect, useCallback, useReducer, memo, useRef } from "react";
 import { ReactSVGPanZoom, TOOL_NONE } from "react-svg-pan-zoom";
 import c from "./SvgHome.module.css";
 
-// Initial state
 const initialState = {
   tool: TOOL_NONE,
   value: null,
   isLoading: true,
 };
 
-// Reducer function
 const reducer = (state, action) => {
   switch (action.type) {
     case "SET_TOOL":
@@ -403,7 +402,7 @@ const reducer = (state, action) => {
 const SvgHome = memo(() => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const { tool, value, isLoading } = state;
-  const svgContainerRef = useRef(null);
+  const svgRef = useRef(null);
 
   const parseSvg = useCallback((svgString) => {
     const parser = new DOMParser();
@@ -421,14 +420,13 @@ const SvgHome = memo(() => {
         ];
 
     const viewportWidth = window.innerWidth;
-    const viewportHeight = window.innerHeight * 0.9; // Adjust for the ReactSVGPanZoom height
+    const viewportHeight = window.innerHeight * 0.9; 
     const scaleX = viewportWidth / svgWidth;
     const scaleY = viewportHeight / svgHeight;
-    const initialScale = Math.min(scaleX, scaleY) * 0.95; // 95% to leave a small margin
+    const initialScale = Math.min(scaleX, scaleY) * 0.95; 
 
-    if (svgContainerRef.current) {
-      svgContainerRef.current.innerHTML = svgElement.outerHTML;
-    }
+   
+    svgRef.current = svgElement.innerHTML;
 
     dispatch({
       type: "SET_VALUE",
@@ -500,8 +498,9 @@ const SvgHome = memo(() => {
           width={value.SVGWidth}
           height={value.SVGHeight}
           viewBox={`${value.SVGMinX} ${value.SVGMinY} ${value.SVGWidth} ${value.SVGHeight}`}
-          ref={svgContainerRef}
-        />
+        >
+          <g dangerouslySetInnerHTML={{ __html: svgRef.current }} />
+        </svg>
       </ReactSVGPanZoom>
     </div>
   );
