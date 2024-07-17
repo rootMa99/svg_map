@@ -420,12 +420,11 @@ const SvgHome = memo(() => {
         ];
 
     const viewportWidth = window.innerWidth;
-    const viewportHeight = window.innerHeight * 0.9; 
+    const viewportHeight = window.innerHeight * 0.9;
     const scaleX = viewportWidth / svgWidth;
     const scaleY = viewportHeight / svgHeight;
-    const initialScale = Math.min(scaleX, scaleY) * 0.95; 
+    const initialScale = Math.min(scaleX, scaleY) * 0.95;
 
-   
     svgRef.current = svgElement.innerHTML;
 
     dispatch({
